@@ -2,10 +2,10 @@ function [ ] = distNet(  )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
-load('/mnt/Tank/Matlab_work/Data/Adj.mat')    
-load('/mnt/Tank/Matlab_work/Data/GDA_B.mat', 'vID')
-load('/mnt/Tank/Matlab_work/Data/GDA_B.mat', 'vFG')
-load('/mnt/Tank/Matlab_work/Data/GDA_B.mat', 'vBez')
+load('Adj.mat')    
+load('GDA_B.mat', 'vID')
+load('GDA_B.mat', 'vFG')
+load('GDA_B.mat', 'vBez')
 x=cellfun(@str2double,vBez);
 doc_map=ismember(vFG,[1,7,8]);
 doctor_db = table();
@@ -47,7 +47,6 @@ for i = 1:121
     doctor_db.rescaledInDegree(doctor_db.distnum == i) = 2*indeg'/avgDegree;
     doctor_db.outDegree(doctor_db.distnum == i) = outdeg;
     doctor_db.rescaledOutDegree(doctor_db.distnum == i) = 2*outdeg/avgDegree;
-    addpath('/mnt/Tank/Matlab_work/Cascades/No_capacity');
     number = numel(doctor_db.peterID(doctor_db.distnum == i));
     docs = doctor_db.peterID(doctor_db.distnum == i);
     n2 = network(number, doctor_db.mean_patients(doctor_db.distnum == i), doctor_db.patient_std(doctor_db.distnum == i), full(A));

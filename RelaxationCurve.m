@@ -4,10 +4,10 @@ function [ Allotted, er ] = RelaxationCurve( ID )
 %   Detailed explanation goes here
 
 %load data
-load('/mnt/Tank/Matlab_work/Data/Adj.mat', 'Adj') 
-load('/mnt/Tank/Matlab_work/Data/GDA_B.mat', 'vID')
-load('/mnt/Tank/Matlab_work/Data/GDA_B.mat', 'vFG')
-load('/mnt/Tank/Matlab_work/Data/GDA_B.mat', 'vBez')
+load('Adj.mat', 'Adj') 
+load('GDA_B.mat', 'vID')
+load('GDA_B.mat', 'vFG')
+load('GDA_B.mat', 'vBez')
 load('patientNums.mat')
 
 %construct vector with district for each doctor
@@ -34,8 +34,6 @@ A = Adj( distnum == i, distnum == i );
 %Assign all doctors their patient distribution
 mean_patients = MP(distnum == i);
 patient_std = SP(distnum == i);
-%add path where the scripts for the dynamics are contained
-addpath('/mnt/Tank/Matlab_work/Cascades/No_capacity');
 %Compute number of HCPs in district
 number = numel(peterID(distnum == i));
 %Compute their IDs
