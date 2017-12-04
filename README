@@ -1,2 +1,7 @@
 A data driven simulation project aimed to identify and predict critical
 threats for the availability of primary health-care providers.
+
+There are two parts to this project. Understanding criticality of the system and
+the danger represented by its components (primary HCPs) and understanding
+susceptibility of the system and its components to shocks, i.e. unavailability
+of certain HCPs
