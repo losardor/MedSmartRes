@@ -28,12 +28,14 @@ doctor_db.mean_losts = zeros(size(doctor_db.peterID));
 doctor_db.avoidable = zeros(size(doctor_db.peterID));
 doctor_db.adverse = zeros(size(doctor_db.peterID));
 doctor_db.complications = zeros(size(doctor_db.peterID));
+doctor_db.substy = zeros(size(doctor_db.peterID));
 
 load('patientNums.mat')
 doctor_db.mean_patients = MP;
 doctor_db.patient_std = SP;
 
 for i = 1:121
+    
     A = Adj( doctor_db.distnum == i, doctor_db.distnum == i );
     %Threshold cut of
     %A(A<10) = 0;
@@ -48,15 +50,22 @@ for i = 1:121
     doctor_db.outDegree(doctor_db.distnum == i) = outdeg;
     doctor_db.rescaledOutDegree(doctor_db.distnum == i) = 2*outdeg/avgDegree;
     number = numel(doctor_db.peterID(doctor_db.distnum == i));
+    Px = zeros(number, number);
     docs = doctor_db.peterID(doctor_db.distnum == i);
     n2 = network(number, doctor_db.mean_patients(doctor_db.distnum == i), doctor_db.patient_std(doctor_db.distnum == i), full(A));
     averages = 100;
     for j = 1:number
-        [displ, lostl] = DistributePatients(n2, j, 11, averages);
+        [displ, lostl, px] = DistributePatients(n2, j, 11, averages);
         doctor_db.mean_disp(doctor_db.peterID == docs(j)) = displ;
         doctor_db.mean_losts(doctor_db.peterID == docs(j)) = lostl;
-        save('doc_db.mat', 'doctor_db');
+        try
+            Px(:,j) = px;                
+        catch
+            wtf = 0;
+        end
     end
+    doctor_db.substy(doctor_db.distnum == i) = mean(Px, 2);
+    save('doc_db.mat', 'doctor_db');
 end
 
 end

@@ -48,12 +48,12 @@ for j = 1:averages
     %Remove failed doctors and create displacing patients.
     %Failed doctors have no incoming links but they keep their outgoing.
     patients = struct();
-    patients.origins = [];
+    patients.origin = [];
     patients.displacements = [];
     patients.status = [];
     i = find(ismember(nodes,failedNode));
     looking(j, 1) = DocPatients(i);
-    patients.origins = [patients.origins; ones(DocPatients(i), 1)*nodes(i)];
+    patients.origin = [patients.origin; ones(DocPatients(i), 1)*nodes(i)];
     patients.displacements = [patients.displacements; zeros(DocPatients(i), 1)];
     patients.status = [patients.status; true(DocPatients(i), 1)];
     
@@ -64,9 +64,9 @@ for j = 1:averages
     %Assign each displacing patient a target doctor. Because of how sub2ind
     %works the case of 1 patient must be separated out
     if numel(patients.status) == 1
-        targets = transport(randi(numberDocs, 1), patients.origins);
+        targets = transport(randi(numberDocs, 1), patients.origin);
     else
-        targets = transport(sub2ind(size(transport), patients.origins(patients.status),randi(numberDocs, nnz(patients.status),1)));
+        targets = transport(sub2ind(size(transport), patients.origin(patients.status),randi(numberDocs, nnz(patients.status),1)));
     end
     %I the target is 0, i.e. there was no outgoing link, the patient is
     %lost
@@ -113,9 +113,9 @@ for j = 1:averages
         patients.status(patients.displacements >= maxSteps) = false;
         %Compute new targets
         if numel(patients.status) == 1
-            targets = transport(randi(numberDocs, 1), patients.origins);
+            targets = transport(randi(numberDocs, 1), patients.origin);
         else
-            targets = transport(sub2ind(size(transport), patients.origins(patients.status), randi(numberDocs, nnz(patients.status),1)));
+            targets = transport(sub2ind(size(transport), patients.origin(patients.status), randi(numberDocs, nnz(patients.status),1)));
         end
         %like in firt step
         patients.status(patients.status) = logical(targets);

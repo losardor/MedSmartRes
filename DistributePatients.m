@@ -1,4 +1,4 @@
-function [ disp, lost ] = DistributePatients( N, failedNodes, maxSteps, averages )
+function [ disp, lost, px ] = DistributePatients( N, failedNodes, maxSteps, averages )
 %DISTRIBUTEpATIENTS Computes the mean number of diplacements per patient
 %and the total number of lost patients after the removal of a set of
 %doctors
@@ -20,6 +20,7 @@ function [ disp, lost ] = DistributePatients( N, failedNodes, maxSteps, averages
 numberDocs = numel(N.node);
 A = N.matrix;
 A = A - diag(diag(A));
+Px = zeros(numberDocs, averages);
 
 nodes = 1:numberDocs;
 nodes = nodes(any(A) | any(A'));
@@ -28,6 +29,7 @@ numberDocs = numel(nodes);
 if nnz(ismember(find(~(any(A) | any(A'))), failedNodes))
     disp = 0;
     lost =  sum(N.node(failedNodes).mu);
+    px = zeros(numel(N.node), 1);
     return
 end
 
@@ -35,9 +37,7 @@ A(:,failedNodes) = 0;
 A = bsxfun(@rdivide,A',sum(A, 2)')';
 A(isnan(A)) = 0;
 transport = makeTargetMatrix(A);
-time = [];
 for j = 1:averages
-    tic
     %initialize doctors
     DocPatients = ones(1, numberDocs);
     mu = ones(1,numberDocs);
@@ -50,15 +50,16 @@ for j = 1:averages
     DocPatients = round(mvnrnd(mu, sigma, 1));
     
     DocPatients(DocPatients < 1) = 1;
+    startPats = DocPatients;
     
     %Remove failed doctors and create displacing patients.
     %Failed doctors have no incoming links but they keep their outgoing.
     patients = struct();
-    patients.origins = [];
+    patients.origin = [];
     patients.displacements = [];
     patients.status = [];
         for i = find(ismember(nodes,failedNodes))
-            patients.origins = [patients.origins; ones(DocPatients(i), 1)*nodes(i)];
+            patients.origin = [patients.origin; ones(DocPatients(i), 1)*nodes(i)];
             patients.displacements = [patients.displacements; zeros(DocPatients(i), 1)];
             patients.status = [patients.status; true(DocPatients(i), 1)];
         end
@@ -68,9 +69,9 @@ for j = 1:averages
     
     % %Perform initial time step
     if numel(patients.status) == 1
-        targets = transport(randi(numberDocs, 1), patients.origins);
+        targets = transport(randi(numberDocs, 1), patients.origin);
     else
-        targets = transport(sub2ind(size(transport), patients.origins(patients.status),randi(numberDocs, nnz(patients.status),1)));
+        targets = transport(sub2ind(size(transport), patients.origin(patients.status),randi(numberDocs, nnz(patients.status),1)));
     end
     
     patients.status(patients.status) = logical(targets);
@@ -112,9 +113,9 @@ for j = 1:averages
         patients.status(patients.displacements > maxSteps) = false;
         
         if numel(patients.status) == 1
-            targets = transport(randi(numberDocs, 1), patients.origins);
+            targets = transport(randi(numberDocs, 1), patients.origin);
         else
-            targets = transport(sub2ind(size(transport), patients.origins(patients.status), randi(numberDocs, nnz(patients.status),1)));
+            targets = transport(sub2ind(size(transport), patients.origin(patients.status), randi(numberDocs, nnz(patients.status),1)));
         end
         
         patients.status(patients.status) = logical(targets);
@@ -125,12 +126,13 @@ for j = 1:averages
     patients.lost = patients.lost + numel(patients.displacements(patients.displacements > maxSteps));
     patients.matrix = A;
     a =patients.displacements;
+    %The relative number of patients taken by doctor x
+    Px(nodes,j) = (DocPatients-startPats)/numel(patients.status);
     disp2(j) = sum(a)/numel(a);
     stdD2(j) = std(a);
     lost2(j) = patients.lost;
-    time = [time, toc];
 end
-
+px = mean(Px, 2);
 disp = mean(disp2);
 lost = mean(lost2);
 end
