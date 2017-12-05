@@ -28,7 +28,7 @@ doctor_db.mean_losts = zeros(size(doctor_db.peterID));
 doctor_db.avoidable = zeros(size(doctor_db.peterID));
 doctor_db.adverse = zeros(size(doctor_db.peterID));
 doctor_db.complications = zeros(size(doctor_db.peterID));
-doctor_db.substy = zeros(size(doctor_db.peterID));
+doctor_db.suscettivity = zeros(size(doctor_db.peterID));
 
 load('patientNums.mat')
 doctor_db.mean_patients = MP;
@@ -64,7 +64,7 @@ for i = 1:121
             wtf = 0;
         end
     end
-    doctor_db.substy(doctor_db.distnum == i) = mean(Px, 2);
+    doctor_db.suscettivity(doctor_db.distnum == i) = mean(Px, 2);
     save('doc_db.mat', 'doctor_db');
 end
 
