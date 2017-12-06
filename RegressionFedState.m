@@ -1,4 +1,4 @@
-function [ models, modelscale, modelnet, modelLost, modelscaleLost, modelnetLost ] = RegressionFedState( Fednum )
+function [ models, modelscale, modelnet ] = RegressionFedState( Fednum )
 %REGRESSIONFEDSTATE Calculates the regression models for a given federal
 %state
 %   models is the mixed effects linear regression for the corse model,
@@ -8,50 +8,36 @@ function [ models, modelscale, modelnet, modelLost, modelscaleLost, modelnetLost
 %   displacements
 
 load('DistNet_db.mat')
-logvars = {'mean_patients', 'betweennes', 'relative_number_patients', 'mean_disp', 'mean_losts', 'suscettivity'};
-RegressionData = [distNet_db varfun(@log, distNet_db(:,logvars))];
+logvars = {'mean_patients', 'betweennes', 'mean_disp', 'mean_losts', 'suscettivity'};
+RegressionData = [doctor_db varfun(@log, doctor_db(:,logvars))];
 
-RegressionData(find(isinf(RegressionData.log_mean_disp)),:)=[];
+RegressionData(find(isinf(RegressionData.log_suscettivity)),:)=[];
 RegressionData(find(isinf(RegressionData.log_betweennes)),:)=[];
 RegressionData(:,logvars)=[];
-RegressionFed = RegressionData(RegressionData.fedState == Fednum,:);
+RegressionFed = RegressionData(RegressionData.fedstate == Fednum,:);
 
-novars = {'distnum', 'DataID', 'iscity', 'fedState'};
+novars = {'distnum', 'DataID', 'fedstate'};
 RegressionFed(:,novars) = [];
-RegressionFed = RegressionFed(:,[1:2 13 3:12 14:end]);
-RegressionFed = RegressionFed(:,[1:3 15 4:14 16:end]);
-RegressionFed = RegressionFed(:,[1:9 15 10:14 16:end]);
+RegressionFed = RegressionFed(:,[1 9 2:8 10:end]);
+RegressionFed = RegressionFed(:,[1:8 10 9 11:end]);
+RegressionFed = RegressionFed(:,[1:9 11 10 12:end]);
+RegressionFed = RegressionFed(:,[1:10 12 11 end]);
+RegressionFed = RegressionFed(:,[1:11 13 12]);
 Preds=RegressionFed.Properties.VariableNames(2:end-2);
 
 models = struct;
 for i = 1:numel(Preds)
-    models(i).lm=fitlm(RegressionFed, ['log_mean_disp ~' Preds{i}]);
+    models(i).lm=fitlm(RegressionFed, ['log_suscettivity ~' Preds{i}]);
 end
 
-scale = [ ' + ' Preds{1} ' + ' Preds{2} ' + ' Preds{3}];
+scale = [ ' + ' Preds{1} ' + ' Preds{2} ];
 modelscale = struct;
-for i = 4:numel(Preds)
-    modelscale(i).lm = fitlm(RegressionFed, ['log_mean_disp ~ ' Preds{i} scale]);
+for i = 3:numel(Preds)
+    modelscale(i).lm = fitlm(RegressionFed, ['log_suscettivity ~ ' Preds{i} scale]);
 end
-net = [scale ' + ' Preds{4} ' + ' Preds{5} ' + ' Preds{6} ' + ' Preds{7} ' + ' Preds{8} ' + ' Preds{9}];
-for i = 10:numel(Preds)
-    modelnet(i).lm = fitlm(RegressionFed, ['log_mean_disp ~ ' Preds{i} net]);
+net = [scale ' + ' Preds{4} ' + ' Preds{5} ' + ' Preds{6} ' + ' Preds{7} ' + ' Preds{8} ];
+for i = 9:numel(Preds)
+    modelnet(i).lm = fitlm(RegressionFed, ['log_suscettivity ~ ' Preds{i} net]);
 end
-
-modelLost = struct;
-for i = 1:numel(Preds)
-modelLost(i).lm=fitlm(RegressionFed, ['log_mean_losts ~' Preds{i}]);
-end
-
-modelscaleLost = struct;
-for i = 4:numel(Preds)
-modelscaleLost(i).lm = fitlm(RegressionFed, ['log_mean_losts ~ ' Preds{i} scale]);
-end
-
-modelnetLost = struct;
-for i = 10:numel(Preds)
-modelnetLost(i).lm = fitlm(RegressionFed, ['log_mean_losts ~ ' Preds{i} net]);
-end
-
 end
 
