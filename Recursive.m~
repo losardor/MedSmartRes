@@ -1,0 +1,38 @@
+function [ lost] = Recursive( i )
+%RELAXATIONcURVE computes the number of patients that have access to a HCP
+%as a function of time
+%   Detailed explanation goes here
+
+%load data
+load('Adj.mat', 'Adj') 
+load('GDA_B.mat', 'vID')
+load('GDA_B.mat', 'vFG')
+load('GDA_B.mat', 'vBez')
+load('patientNums.mat')
+
+%construct vector with district for each doctor
+x=cellfun(@str2double,vBez);
+%construct logical vector masking out non primary HCPs
+doc_map=ismember(vFG,[1,7,8]);
+%DataID = vID(doc_map);
+%Creat list of primary HCPs and their peterID
+peterID = 1:numel(vID);
+peterID = peterID(doc_map)';
+%Limit the transport matrix to primary HCPs
+Adj = Adj(peterID, peterID);
+%List district of primary HCPs
+distnum = x(doc_map);
+%Limit matrix to that district
+A = Adj( distnum == i, distnum == i );
+%Assign all doctors their patient distribution
+mean_patients = MP(distnum == i);
+patient_std = SP(distnum == i);
+%Compute number of HCPs in district
+number = numel(peterID(distnum == i));
+%Compute their IDs
+docs = peterID(distnum == i);
+%Create the network object on which the simulation runs
+n = network(number, mean_patients, patient_std, full(A));
+[n, lost(k, jk)] = DistrubutePatients_recurs(n, failedNode, 11, 10);
+end
+
