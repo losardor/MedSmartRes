@@ -65,7 +65,7 @@ for j = 1:averages
     
     patients.status = logical(patients.status);
     patients.lost = 0;
-    
+    Linkusage = zeros(size(A));
     % %Perform initial time step
     if numel(patients.status) == 1
         targets = transport(randi(numberDocs, 1), patients.origins);
@@ -77,11 +77,8 @@ for j = 1:averages
     patients.lost = patients.lost + nnz( ~targets);
     patients.displacements(patients.status) = patients.displacements(patients.status)+1;
     
+    Linkusage(patients.origin(patient.status), targets) = Linkusage(patients.origin(patient.status), targets) + 1
     
-    
-    % G = digraph(A);
-    % plot(G);
-    % pause(0.1);
     
     while any(patients.status)
         
