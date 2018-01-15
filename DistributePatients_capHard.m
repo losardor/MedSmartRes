@@ -1,4 +1,4 @@
-function [ disp, lost ] = DistributePatients_cap( N, failedNodes, maxSteps, averages, capacity )
+function [ disp, lost ] = DistributePatients_capHard( N, failedNodes, maxSteps, averages, capacity )
 %DISTRIBUTEpATIENTS Computes the mean number of diplacements per patient
 %and the total number of lost patients after the removal of a set of
 %doctors
@@ -27,14 +27,14 @@ nodes = nodes(any(A) | any(A'));
 numberDocs = numel(nodes);
 if nnz(ismember(find(~(any(A) | any(A'))), failedNodes))
     disp = 0;
-    lost =  sum(N.node(failedNodes).mu);
+    lost =  sum([N.node(failedNodes).mu]);
     return
 end
 
 A(:,failedNodes) = 0;
 A = bsxfun(@rdivide,A',sum(A, 2)')';
 A(isnan(A)) = 0;
-transport = makeTargetMatrix(A);
+transport = makeTargetMatrix(A,2);
 time = [];
 for j = 1:averages
     tic
@@ -42,11 +42,13 @@ for j = 1:averages
     DocPatients = ones(1, numberDocs);
     mu = ones(1,numberDocs);
     sigma = ones(1,numberDocs);
+    
     for i = 1:numel(nodes)
         mu(i) = N.node(nodes(i)).mu;
         sigma(i) = N.node(nodes(i)).sigma;
     end
-    DocPatients = round(mvnrnd(mu, sigma, 1));
+    DocPatients = floor(mu);
+    %round(mvnrnd(mu, sigma, 1));
     
     DocPatients(DocPatients < 1) = 1;
     
@@ -61,10 +63,9 @@ for j = 1:averages
             patients.displacements = [patients.displacements; zeros(DocPatients(i), 1)];
             patients.status = [patients.status; true(DocPatients(i), 1)];
         end
-    
+    patientTraj = patients.origins;
     patients.status = logical(patients.status);
     patients.lost = 0;
-    Linkusage = zeros(size(A));
     % %Perform initial time step
     if numel(patients.status) == 1
         targets = transport(randi(numberDocs, 1), patients.origins);
@@ -79,18 +80,16 @@ for j = 1:averages
     
     
     while any(patients.status)
-        
-        intake = normrnd(0,1, numberDocs, 1);
-        intake = intake.*sigma'*capacity + mu';
+
+        intake = sigma'*capacity + mu' - DocPatients';
         intake(ismember(nodes,failedNodes)) = 0;
-        intake(intake < DocPatients') = 0;
-        intake(intake>DocPatients') = intake(intake>DocPatients')-DocPatients(intake>DocPatients')';
-        patients.origin(patients.status) = targets(targets>0);
+        intake(intake < 0) = 0;
+        patients.origins(patients.status) = targets(targets>0);
         
         for i = 1:numberDocs
             
             if logical(intake(i))
-                presentPats = find(patients.origin == i); %
+                presentPats = find(patients.origins == i); %
                 presentPats = presentPats(patients.status(presentPats));
                 if numel(presentPats) > intake(i)
                     kept = randsample(presentPats, floor(intake(i)), false);
@@ -115,6 +114,7 @@ for j = 1:averages
         patients.status(patients.status) = logical(targets);
         patients.lost = patients.lost + nnz( ~targets);
         patients.displacements(patients.status) = patients.displacements(patients.status)+1;
+        patientTraj = [patientTraj, patients.origins];
     end
     
     patients.lost = patients.lost + numel(patients.displacements(patients.displacements > maxSteps));
@@ -124,6 +124,9 @@ for j = 1:averages
     stdD2(j) = std(a);
     lost2(j) = patients.lost;
     time = [time, toc];
+    if patients.lost ~= 0
+        wtf = 0;
+    end
 end
 
 disp = mean(disp2);

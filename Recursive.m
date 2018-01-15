@@ -1,3 +1,4 @@
+%% Using the hard version
 function [ lost] = Recursive( i )
 %RELAXATIONcURVE computes the number of patients that have access to a HCP
 %as a function of time
@@ -36,7 +37,7 @@ n = network(number, mean_patients, patient_std, full(A));
 for k = 1:number
     for jk = 1:100
         failedNodes = randsample(1:number, k);
-        [~, lost(k, jk)] = DistributePatients_cap(n, failedNodes, 11, 5, 10);
+        [~, lost(k, jk)] = DistributePatients_capHard(n, failedNodes, 11, 5, 5);
     end
 end
 end

@@ -29,7 +29,7 @@ A = bsxfun(@rdivide,A',sum(A, 2)')';
 %Set 0/0 fractions to 0
 A(isnan(A)) = 0;
 %Compute a matrix in the form specified in end comments
-transport = makeTargetMatrix(A);
+transport = makeTargetMatrix(A,2);
 %Run iterations
 for j = 1:averages
     %Start counting time
