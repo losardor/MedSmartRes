@@ -1,7 +1,8 @@
 %% Using the hard version
-function [ lost] = Recursive( i )
-%RELAXATIONcURVE computes the number of patients that have access to a HCP
-%as a function of time
+function [ lost] = Recursive( i , alpha)
+%RELAXATIONcURVE computes the number of patients that are lost in a
+%district as a function of the number of unavailable doctors for a large
+%number of removal combinations
 %   Detailed explanation goes here
 
 %load data
@@ -34,10 +35,10 @@ number = numel(peterID(distnum == i));
 docs = peterID(distnum == i);
 %Create the network object on which the simulation runs
 n = network(number, mean_patients, patient_std, full(A));
-for k = 1:number
+for k = 1:number-1
     for jk = 1:100
         failedNodes = randsample(1:number, k);
-        [~, lost(k, jk)] = DistributePatients_capHard(n, failedNodes, 11, 5, 5);
+        [~, lost(k, jk)] = DistributePatients_capHard(n, failedNodes, 11, 5, 5, alpha);
     end
 end
 end

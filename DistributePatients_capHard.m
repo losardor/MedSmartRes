@@ -1,4 +1,4 @@
-function [ disp, lost ] = DistributePatients_capHard( N, failedNodes, maxSteps, averages, capacity )
+function [ disp, lost ] = DistributePatients_capHard( N, failedNodes, maxSteps, averages, capacity, alpha )
 %DISTRIBUTEpATIENTS Computes the mean number of diplacements per patient
 %and the total number of lost patients after the removal of a set of
 %doctors
@@ -30,11 +30,11 @@ if nnz(ismember(find(~(any(A) | any(A'))), failedNodes))
     lost =  sum([N.node(failedNodes).mu]);
     return
 end
-
+active_nodes = nodes(~ismember(nodes, failedNodes));
 A(:,failedNodes) = 0;
 A = bsxfun(@rdivide,A',sum(A, 2)')';
 A(isnan(A)) = 0;
-transport = makeTargetMatrix(A,2);
+transport = makeTargetMatrix(A,10);
 time = [];
 for j = 1:averages
     tic
@@ -71,6 +71,8 @@ for j = 1:averages
         targets = transport(randi(numberDocs, 1), patients.origins);
     else
         targets = transport(sub2ind(size(transport), patients.origins(patients.status),randi(numberDocs, nnz(patients.status),1)));
+        telep_prob = rand(size(targets));
+        targets(telep_prob < alpha) = randsample(active_nodes, nnz(telep_prob < alpha), true);
     end
     
     patients.status(patients.status) = logical(targets);
@@ -109,6 +111,8 @@ for j = 1:averages
             targets = transport(randi(numberDocs, 1), patients.origins);
         else
             targets = transport(sub2ind(size(transport), patients.origins(patients.status), randi(numberDocs, nnz(patients.status),1)));
+            telep_prob = rand(size(targets));
+            targets(telep_prob < alpha) = randsample(active_nodes, nnz(telep_prob < alpha), true);
         end
         
         patients.status(patients.status) = logical(targets);
