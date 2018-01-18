@@ -1,10 +1,12 @@
-%% Using the hard version
+% Using the hard version
 function [ lost] = Recursive( i , alpha)
 %RELAXATIONcURVE computes the number of patients that are lost in a
 %district as a function of the number of unavailable doctors for a large
 %number of removal combinations
 %   Detailed explanation goes here
-
+set(0, 'DefaultAxesFontSize',20, 'DefaultAxesLineWidth', 2.0);
+set(0, 'DefaultTextFontSize',20, 'DefaultTextLineWidth',1.5);
+set(0, 'DefaultLineLineWidth',1.5); 
 %load data
 load('Adj.mat', 'Adj') 
 load('GDA_B.mat', 'vID')

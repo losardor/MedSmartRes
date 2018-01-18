@@ -34,7 +34,7 @@ active_nodes = nodes(~ismember(nodes, failedNodes));
 A(:,failedNodes) = 0;
 A = bsxfun(@rdivide,A',sum(A, 2)')';
 A(isnan(A)) = 0;
-transport = makeTargetMatrix(A,10);
+transport = makeTargetMatrix_new(A);
 time = [];
 for j = 1:averages
     tic
