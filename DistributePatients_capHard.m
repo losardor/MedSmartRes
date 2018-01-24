@@ -34,7 +34,13 @@ active_nodes = nodes(~ismember(nodes, failedNodes));
 A(:,failedNodes) = 0;
 A = bsxfun(@rdivide,A',sum(A, 2)')';
 A(isnan(A)) = 0;
-transport = makeTargetMatrix_new(A);
+if any(any(A))
+    transport = makeTargetMatrix_new(A);
+else
+    lost = sum([N.node(:).mu]);
+    disp = 0;
+    return
+end
 time = [];
 for j = 1:averages
     tic
@@ -70,7 +76,11 @@ for j = 1:averages
     if numel(patients.status) == 1
         targets = transport(randi(numberDocs, 1), patients.origins);
     else
+        try
         targets = transport(sub2ind(size(transport), patients.origins(patients.status),randi(numberDocs, nnz(patients.status),1)));
+        catch
+            wtf = 0
+        end
         telep_prob = rand(size(targets));
         targets(telep_prob < alpha) = randsample(active_nodes, nnz(telep_prob < alpha), true);
     end

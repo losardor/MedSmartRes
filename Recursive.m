@@ -1,5 +1,5 @@
 % Using the hard version
-function [ lost] = Recursive( i , alpha)
+function [ lost] = Recursive( i , alpha, capacity)
 %RELAXATIONcURVE computes the number of patients that are lost in a
 %district as a function of the number of unavailable doctors for a large
 %number of removal combinations
@@ -40,7 +40,7 @@ n = network(number, mean_patients, patient_std, full(A));
 for k = 1:number-1
     for jk = 1:100
         failedNodes = randsample(1:number, k);
-        [~, lost(k, jk)] = DistributePatients_capHard(n, failedNodes, 11, 5, 5, alpha);
+        [~, lost(k, jk)] = DistributePatients_capHard(n, failedNodes, 11, 5, capacity, alpha);
     end
 end
 end
