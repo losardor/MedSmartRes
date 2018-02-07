@@ -15,6 +15,9 @@ function [ disp, lost ] = DistributePatients_capHard( N, failedNodes, maxSteps, 
 %   averages is the number of times the simulation will run the scenario
 %   before averaging the results in the output
 
+
+%SETUP
+
 %Clean the network by removing self loops, disconnected doctors and
 %rownormalising the transport matrix
 numberDocs = numel(N.node);
@@ -42,9 +45,12 @@ else
     return
 end
 time = [];
+
+%ITERATED PART
 for j = 1:averages
     tic
-    %initialize doctors
+    %INITIALIZE DOCTORS AND PATIENTS
+    
     DocPatients = ones(1, numberDocs);
     mu = ones(1,numberDocs);
     sigma = ones(1,numberDocs);
@@ -72,15 +78,14 @@ for j = 1:averages
     patientTraj = patients.origins;
     patients.status = logical(patients.status);
     patients.lost = 0;
-    % %Perform initial time step
+    
+    %BEGIN DIFFUSION
+    
+    %Perform initial time step
     if numel(patients.status) == 1
         targets = transport(randi(numberDocs, 1), patients.origins);
     else
-        try
         targets = transport(sub2ind(size(transport), patients.origins(patients.status),randi(numberDocs, nnz(patients.status),1)));
-        catch
-            wtf = 0
-        end
         telep_prob = rand(size(targets));
         targets(telep_prob < alpha) = randsample(active_nodes, nnz(telep_prob < alpha), true);
     end
@@ -90,7 +95,7 @@ for j = 1:averages
     patients.displacements(patients.status) = patients.displacements(patients.status)+1;
     
     
-    
+    %FOLLOWING TIME STEPS
     while any(patients.status)
 
         intake = sigma'*capacity + mu' - DocPatients';
@@ -131,6 +136,7 @@ for j = 1:averages
         patientTraj = [patientTraj, patients.origins];
     end
     
+    %UPDATE DATA
     patients.lost = patients.lost + numel(patients.displacements(patients.displacements > maxSteps));
     patients.matrix = A;
     a =patients.displacements;
@@ -138,11 +144,9 @@ for j = 1:averages
     stdD2(j) = std(a);
     lost2(j) = patients.lost;
     time = [time, toc];
-    if patients.lost ~= 0
-        wtf = 0;
-    end
 end
 
+%PREPARE OUTPUT 
 disp = mean(disp2);
 lost = mean(lost2);
 end

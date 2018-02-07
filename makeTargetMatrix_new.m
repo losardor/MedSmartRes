@@ -31,7 +31,7 @@ for i = 1:numberDocs
             target(i,K:(K+probs_ur(i).vals(k)-1)) = neighs(i).vals(k);
             K = K + probs_ur(i).vals(k);
         end
-        target(target(i,:) == 0)=randsample(target(target(i,:)>0),nnz(~target(i,:)), true);
+        target(i, target(i,:) == 0)=randsample(target(i, target(i,:)>0),nnz(~target(i,:)), true);
     else
         target(i,:) = 0;
     end

@@ -16,7 +16,6 @@ Adj = Adj(doctor_db.peterID, doctor_db.peterID);
 doctor_db.mean_patients = zeros(size(doctor_db.peterID));
 doctor_db.patient_std = zeros(size(doctor_db.peterID));
 doctor_db.distnum = x(doc_map);
-%think of way to assign this
 doctor_db.inDegree = zeros(size(doctor_db.peterID));
 doctor_db.outDegree = zeros(size(doctor_db.peterID));
 doctor_db.rescaledOutDegree = zeros(size(doctor_db.peterID));
@@ -55,16 +54,15 @@ for i = 1:121
     n2 = network(number, doctor_db.mean_patients(doctor_db.distnum == i), doctor_db.patient_std(doctor_db.distnum == i), full(A));
     averages = 100;
     for j = 1:number
-        [displ, lostl, px] = DistributePatients(n2, j, 11, averages);
+        [displ, lostl] = DistributePatients_capHard(n2, j, 11, averages, 3, 0.15);
         doctor_db.mean_disp(doctor_db.peterID == docs(j)) = displ;
         doctor_db.mean_losts(doctor_db.peterID == docs(j)) = lostl;
-        try
-            Px(:,j) = px;                
-        catch
-            wtf = 0;
-        end
+        %Px(:,j) = px;       Add line for suscettivity, ad px as the last
+        %argument and use the right distribute patients
+
     end
-    doctor_db.suscettivity(doctor_db.distnum == i) = mean(Px, 2);
+    %doctor_db.suscettivity(doctor_db.distnum == i) = mean(Px, 2); like
+    %line above
     save('doc_db.mat', 'doctor_db');
 end
 
