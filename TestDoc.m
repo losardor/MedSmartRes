@@ -1,4 +1,4 @@
-function  [] = TestDoc(Id)
+function  [displ, lostl] = TestDoc(Id, cap)
 %TESTDOC tests the dynamics on a single doctor
 %   Just give the Id (peterID) of the doctor to test
 load('Adj.mat')    
@@ -20,5 +20,6 @@ docs = peterID(distnum == i);
 n2 = network(number, MP(distnum == i), SP(distnum == i), full(A));
 averages = 100;
 nDoc = find(docs == Id);
-[displ, lostl] = DistributePatients_capHard(n2, nDoc, 11, averages, 3, 0.15)
+%[displ, lostl] = DistributePatients_capHard(n2, nDoc, 11, averages, 3, 0.15)
+[displ, lostl] = DistPat_capHardFix(n2, nDoc, 11, averages, cap, 0.15);
 

@@ -65,37 +65,26 @@ for i = 10:numel(Preds)
 end
 
 
-% 
-% models_s = struct;
-% h = figure;set(h);
-% for i = 1:numel(Preds)
-%     models_s(i).lm=fitlm(RegressionData, ['slope ~' Preds{i}]);
-%     plot(models_s(i).lm);
+
+models_s = struct;
+h = figure;set(h);
+for i = 1:9
+    models_s(i).lm=fitlm(RegressionData, ['mean_mean_disp ~' Preds{i}]);
+    plot(models_s(i).lm);
 %     h1=get(gca,'title');
 %     filename = ['models_slope', h1.String,'.fig'];
 %     filename = filename(find(~isspace(filename)));
-%     %savefig(filename)
-% end
-% 
-% 
-% scale = [ ' + ' Preds{1} ' + ' Preds{2} ' + ' Preds{3} ];
-% modelscale_s = struct;
-% for i = 4:numel(Preds)
-%     modelscale_s(i).lm = fitlm(RegressionData, ['slope ~ ' Preds{i} scale]);
-%     plot(modelscale_s(i).lm);
+    %savefig(filename)
+end
+
+
+scale = [ ' + ' Preds{1} ' + ' Preds{2} ' + ' Preds{3} ];
+modelscale_s = struct;
+for i = 4:9
+    modelscale_s(i).lm = fitlm(RegressionData, ['mean_mean_disp ~ ' Preds{i} scale]);
+    plot(modelscale_s(i).lm);
 %     h1=get(gca,'title');
 %     filename = ['modelscale_slope', h1.String,'.fig'];
 %     filename = filename(find(~isspace(filename)));
-%     %savefig(filename)
-% end
-% 
-% net = [scale ' + ' Preds{5} ' + ' Preds{6} ' + ' Preds{7} ' + ' Preds{8} ' + ' Preds{9} ' + ' Preds{10} ];
-% modelnet_s = struct;
-% for i = 11:numel(Preds)
-%     modelnet_s(i).lm = fitlm(RegressionData, ['slope ~ ' Preds{i} net]);
-%     plot(modelnet_s(i).lm);
-%     h1=get(gca,'title');
-%     filename = ['modelnet_slope', h1.String,'.fig'];
-%     filename = filename(find(~isspace(filename)));
-%     %savefig(filename)        
-% end
+    %savefig(filename)
+end
