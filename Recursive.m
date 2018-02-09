@@ -40,7 +40,8 @@ n = network(number, mean_patients, patient_std, full(A));
 for k = 1:number-1
     for jk = 1:100
         failedNodes = randsample(1:number, k);
-        [~, lost(k, jk)] = DistributePatients_capHard(n, failedNodes, 11, 5, capacity, alpha);
+        [~, lost(k, jk)] = DistPat_capHardFix(n, failedNodes, 11, 5, capacity, alpha);
+%         [~, lost(k, jk)] = DistributePatients_capHard(n, failedNodes, 11, 5, capacity, alpha);
     end
 end
 end

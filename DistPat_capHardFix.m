@@ -1,4 +1,4 @@
-function [ disp, lost ] = DistributePatients_capHard( N, failedNodes, maxSteps, averages, capacity, alpha )
+function [ disp, lost ] = DistPat_capHardFix( N, failedNodes, maxSteps, averages, capacity, alpha )
 %DISTRIBUTEpATIENTS Computes the mean number of diplacements per patient
 %and the total number of lost patients after the removal of a set of
 %doctors

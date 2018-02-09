@@ -54,7 +54,7 @@ for i = 1:121
     n2 = network(number, doctor_db.mean_patients(doctor_db.distnum == i), doctor_db.patient_std(doctor_db.distnum == i), full(A));
     averages = 100;
     for j = 1:number
-        [displ, lostl] = DistributePatients_capHard(n2, j, 11, averages, 3, 0.15);
+        [displ, lostl] = DistPat_capHardFix(n2, j, 11, averages, 0.08, 0.15);
         doctor_db.mean_disp(doctor_db.peterID == docs(j)) = displ;
         doctor_db.mean_losts(doctor_db.peterID == docs(j)) = lostl;
         %Px(:,j) = px;       Add line for suscettivity, ad px as the last
