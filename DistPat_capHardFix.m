@@ -66,7 +66,7 @@ for j = 1:averages
     DocPatients = floor(mu);
     %round(mvnrnd(mu, sigma, 1));
     
-    DocPatients(DocPatients < 1) = 1;
+    %DocPatients(DocPatients < 1) = 1;
     
     %Remove failed doctors and create displacing patients.
     %Failed doctors have no incoming links but they keep their outgoing.
