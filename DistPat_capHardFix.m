@@ -42,7 +42,7 @@ A(:,failedNodes) = 0;
 A = bsxfun(@rdivide,A',sum(A, 2)')';
 A(isnan(A)) = 0;
 if any(any(A))
-    transport = makeTargetMatrix_new(A);
+    transport = makeTargetMatrix(A);
 else
     lost = sum([N.node(:).mu]);
     disp = 0;
