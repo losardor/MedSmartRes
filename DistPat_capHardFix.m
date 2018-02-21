@@ -48,6 +48,7 @@ else
     disp = 0;
     return
 end
+N = numel(transport(1,:));
 time = [];
 
 %ITERATED PART
@@ -87,9 +88,9 @@ for j = 1:averages
     
     %Perform initial time step
     if numel(patients.status) == 1
-        targets = transport(randi(numberDocs, 1), patients.origins);
+        targets = transport(randi(N, 1), patients.origins);
     else
-        targets = transport(sub2ind(size(transport), patients.origins(patients.status),randi(numberDocs, nnz(patients.status),1)));
+        targets = transport(sub2ind(size(transport), patients.origins(patients.status),randi(N, nnz(patients.status),1)));
         telep_prob = rand(size(targets));
         targets(telep_prob < alpha) = randsample(active_nodes, nnz(telep_prob < alpha), true);
     end

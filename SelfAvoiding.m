@@ -1,4 +1,4 @@
-function [ disp, lost ] = SelfAvoiding( System, failedSet, averages, alpha )
+function [ disp, lost ] = SelfAvoiding( System, failedSet, averages)
 %SELFaVOIDING computes the number of lost patients and the mean number of
 %steps each patient (whos original HCP is unavailable) necessary to find a
 %new one. Patients diffuse along self avoiding random walks with
@@ -21,7 +21,7 @@ function [ disp, lost ] = SelfAvoiding( System, failedSet, averages, alpha )
 A = System.matrix;
 docs = [System.HCPs(:).id];
 
-if nnz(ismember(docs, failedSet))
+if ~nnz(ismember(docs, failedSet))
     disp = 0;
     lost = sum([System.HCPs(:).patients]);
     return
@@ -30,9 +30,7 @@ A(:,failedSet) = 0;
 %Matrix becomes row-stochastic
 A = bsxfun(@rdivide,A',sum(A, 2)')';
 A(isnan(A)) = 0;
-if any(any(A))
-    transport = makeTargetMatrix(A);
-else
+if ~any(any(A))
     disp = 0;
     lost = sum([System.HCPs(:).patients]);
     return
@@ -49,20 +47,45 @@ for k = 1:averages
     patients.displacements = [];
     patients.status = [];
     for i = failedNodes
-        patients.origins = [patients.origins; ones(DocPatients(i), 1)*docs(i)];
         patients.displacements = [patients.displacements; zeros(DocPatients(i), 1)];
         patients.status = [patients.status, true(DocPatients(i), 1)];
     end
-    patientTraj = patients.origins;
-    lost = 0;
     
-    while true
-        %Timestep will go here
-        if any(patients.status)
+    patientTraj = zeros(numel(patients.status), numel(docs));
+    for j = 1:numel(patients.status)
+        patientTraj(j,:) = destroy(A);
+    end
+    j = 0;
+    while j<numel(docs)
+        j = j +1;
+        for i = 1:numel(docs)
+            
+            if System.HCPs(i).mu+System.HCPs(i).capacity-System.HCPs(i).patients > 0
+                incoming = nnz(patientTraj(:,j) == docs(i));
+                if incoming < System.HCPs(i).mu+System.HCPs(i).capacity-System.HCPs(i).patients
+                    System.HCPs(i).patients = System.HCPs(i).patients+incoming;
+                    patients.status(patientTraj(:,j) == docs(i)) = false;
+                    patientTraj(patientTraj(:,j) == docs(i), j:end) =  docs(i);
+                else
+                    nr_kept = System.HCPs(i).mu+System.HCPs(i).capacity-System.HCPs(i).patients;
+                    System.HCPs(i).patients = System.HCPs(i).mu+System.HCPs(i).capacity;
+                    kept = randsample(find(patientTraj(:,j)==docs(i)), nr_kept, false);
+                    patientTraj(kept, j:end) = docs(i);
+                    patients.status(kept) = false;
+                    patients.displacements(~ismember(1:numel(patients.status), kept)) = patients.displacements(~ismember(1:numel(patients.status), kept)) +1;
+                end
+            else
+                patients.displacements(patientTraj(:,j) == docs(i)) = patients.displacements(patientTraj(:,j) == docs(i)) + 1;
+            end               
+        end
+        
+        if ~any(patients.status)
             break
         end
-    end
-        
-         
+    end 
+    lost(k) = nnz(patients.status);
+    displacements(k) = mean(patients.displacements);
 end
-
+lost = mean(lost);
+disp = mean(displacements);
+end
