@@ -22,10 +22,10 @@ classdef HCP
     
     methods
         function self = HCP(mu, sigma, capacity)
-            self.mu = mu;
-            self.sigma = sigma;
-            self.capacity = capacity;
-            self.patients = mu;
+            self.mu = floor(mu);
+            self.sigma = floor(sigma);
+            self.capacity = floor(capacity);
+            self.patients = floor(mu);
         end
         
         function self = set.id(self, idn)

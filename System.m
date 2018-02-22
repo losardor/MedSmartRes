@@ -48,7 +48,8 @@ classdef System
             matrix = matrix - diag(diag(matrix));
             nodes = 1:N;
             %remove disconnected nodes
-            nodes = nodes(any(matrix) | any(matrix'));          
+            nodes = nodes(any(matrix) | any(matrix'));
+            matrix = matrix(nodes, nodes);
             self.matrix = matrix;
             n = HCP.empty;
             for i = nodes

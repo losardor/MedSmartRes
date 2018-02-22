@@ -1,6 +1,5 @@
-function seq = destroy(A)
+function seq = destroy(A, i)
 N = numel(A(1,:));
-i = randi(N,1);
 nodes = 1:N;
 seq = [];
 for k = 1:N-1
