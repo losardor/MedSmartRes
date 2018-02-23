@@ -48,7 +48,7 @@ for k = 1:averages
     patients.status = [];
     for i = failedNodes
         patients.origins = [patients.origins; ones(DocPatients(i), 1)*i];
-        patients.displacements = [patients.displacements; zeros(DocPatients(i), 1)];
+        patients.displacements = [patients.displacements; ones(DocPatients(i), 1)];
         patients.status = [patients.status; true(DocPatients(i), 1)];
     end
     
@@ -63,18 +63,19 @@ for k = 1:averages
         for i = 1:numel(docs)
             
             if CurSyst.HCPs(i).mu+CurSyst.HCPs(i).capacity-CurSyst.HCPs(i).patients > 0
-                incoming = nnz(patientTraj(:,j) == docs(i));
+                atdoc = find(patientTraj(:,j)==docs(i));
+                incoming = numel(atdoc);
                 if incoming < CurSyst.HCPs(i).mu+CurSyst.HCPs(i).capacity-CurSyst.HCPs(i).patients
                     CurSyst.HCPs(i).patients = CurSyst.HCPs(i).patients+incoming;
-                    patients.status(patientTraj(:,j) == docs(i)) = false;
-                    patientTraj(patientTraj(:,j) == docs(i), j:end) =  docs(i);
+                    patients.status(atdoc) = false;
+                    patientTraj(atdoc, j:end) =  docs(i);
                 else
                     nr_kept = floor(CurSyst.HCPs(i).mu+CurSyst.HCPs(i).capacity-CurSyst.HCPs(i).patients);
                     CurSyst.HCPs(i).patients = CurSyst.HCPs(i).mu+CurSyst.HCPs(i).capacity;
-                    kept = randsample(find(patientTraj(:,j)==docs(i)), nr_kept, false);
+                    kept = randsample(atdoc, nr_kept, false);
                     patientTraj(kept, j:end) = docs(i);
                     patients.status(kept) = false;
-                    patients.displacements(~ismember(1:numel(patients.status), kept)) = patients.displacements(~ismember(1:numel(patients.status), kept)) +1;
+                    patients.displacements(atdoc(~ismember(atdoc, kept))) = patients.displacements(atdoc(~ismember(atdoc, kept))) +1;
                 end
             else
                 patients.displacements(patientTraj(:,j) == docs(i)) = patients.displacements(patientTraj(:,j) == docs(i)) + 1;
