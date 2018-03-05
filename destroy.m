@@ -1,6 +1,15 @@
-function seq = destroy(A, i)
+function seq = destroy(A, i, failedNodes)
+if ismember(i, failedNodes)
+    failedNodes(failedNodes == i) = [];
+end
 N = numel(A(1,:));
 nodes = 1:N;
+strt = nodes(i);
+nodes(failedNodes) = [];
+A(failedNodes,:) = [];
+A(:,failedNodes) = [];
+N = numel(A(1,:));
+i = find(nodes == strt);
 seq = [];
 for k = 1:N-1
     seq(end+1) = nodes(i);

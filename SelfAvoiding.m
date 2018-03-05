@@ -54,7 +54,7 @@ for k = 1:averages
     
     patientTraj = zeros(numel(patients.status), numel(docs));
     parfor j = 1:numel(patients.status)
-        trj = docs(destroy(A, patients.origins(i)))
+        trj = docs(destroy(A, patients.origins(j), failedNodes));
         patientTraj(j,:) = [trj, docs(~ismember(docs, trj))];
     end
     j = 1;
