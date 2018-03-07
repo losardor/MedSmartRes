@@ -2,10 +2,6 @@ load('doc_db.mat')
 statarray = grpstats(doctor_db, 'distnum');
 statarray.mean_DataID = [];
 statarray.mean_peterID = [];
-statarray.mean_adverse = [];
-statarray.mean_avoidable = [];
-statarray.mean_complications = [];
-statarray.mean_suscettivity = [];
 statarray.Properties.VariableNames{2} = 'docnum';
 load('mods.mat')
 for i = 1:24
