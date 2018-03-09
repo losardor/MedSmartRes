@@ -1,0 +1,10 @@
+scatter(statarray.mean_outDegree,statarray.mean_mean_disp, 25,statarray.mean_fedstate, 'filled')
+set(gca, 'xScale','log');
+set(gca, 'yScale','log');
+doc scatter
+xlabel('N; # of HCPs')
+ylabel('<D>; Mean Displacements')
+cmap = jet(20);
+cmap = flipud(cmap(1:10,:));
+colormap(cmap);
+colorbar
