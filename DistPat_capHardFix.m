@@ -138,7 +138,57 @@ for j = 1:averages
         patients.status(patients.status) = logical(targets);
         patients.lost = patients.lost + nnz( ~targets);
         patients.displacements(patients.status) = patients.displacements(patients.status)+1;
-        patientTraj = [patientTraj, patients.origins];
+        patientTraj = [patientTraj, patients.orif numel(patients.status) == 1
+        targets = transport(randi(N, 1), patients.origins);
+    else
+        targets = transport(sub2ind(size(transport), patients.origins(patients.status),randi(N, nnz(patients.status),1)));
+        telep_prob = rand(size(targets));
+        targets(telep_prob < alpha) = randsample(active_nodes, nnz(telep_prob < alpha), true);
+    end
+    
+    patients.status(patients.status) = logical(targets);
+    patients.lost = patients.lost + nnz( ~targets);
+    patients.displacements(patients.status) = patients.displacements(patients.status)+1;
+    
+    
+    %FOLLOWING TIME STEPS
+    while any(patients.status)
+
+        intake = (1+capacity)*mu' - DocPatients';
+        intake(ismember(nodes,failedNodes)) = 0;
+        intake(intake < 0) = 0;
+        patients.origins(patients.status) = targets(targets>0);
+        
+        for i = 1:numberDocs
+            
+            if logical(intake(i))
+                presentPats = find(patients.origins == i); %
+                presentPats = presentPats(patients.status(presentPats));
+                if numel(presentPats) > intake(i)
+                    kept = randsample(presentPats, floor(intake(i)), false);
+                    patients.status(kept) = false;
+                    intake(i) = numel(kept);
+                else
+                    patients.status(presentPats) = false;
+                    intake(i) = numel(presentPats);
+                end
+            end
+            
+            DocPatients(i) = DocPatients(i) + intake(i);
+        end
+        patients.status(patients.displacements > maxSteps) = false;
+        
+        if numel(patients.status) == 1
+            targets = transport(randi(numberDocs, 1), patients.origins);
+        else
+            targets = transport(sub2ind(size(transport), patients.origins(patients.status), randi(numberDocs, nnz(patients.status),1)));
+            telep_prob = rand(size(targets));
+            targets(telep_prob < alpha) = randsample(active_nodes, nnz(telep_prob < alpha), true);
+        end
+        
+        patients.status(patients.status) = logical(targets);
+        patients.lost = patients.lost + nnz( ~targets);
+        patients.displacements(patients.status) = patients.displacements(patients.status)+1;
     end
     
     %UPDATE DATA
