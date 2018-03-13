@@ -37,9 +37,9 @@ for k = 1:averages
     patients.status = [];
     patients.lost = 0;
     for i = failedNodes
-        patients.origins = [patients.origins; ones(DocPatients(i), 1)*i];
-        patients.displacements = [patients.displacements; ones(DocPatients(i), 1)];
-        patients.status = logical([patients.status; true(DocPatients(i), 1)]);
+        patients.origins = [patients.origins; ones(DocPatients(doc2ind(i)), 1)*i];
+        patients.displacements = [patients.displacements; ones(DocPatients(doc2ind(i)), 1)];
+        patients.status = logical([patients.status; true(DocPatients(doc2ind(i)), 1)]);
     end
     
         %Perform initial time step
@@ -73,7 +73,11 @@ for k = 1:averages
                 presentPats = find(patients.origins == i); %
                 presentPats = presentPats(patients.status(presentPats));
                 if numel(presentPats) > intake
-                    kept = randsample(presentPats, floor(intake), false);
+                    try
+                        kept = randsample(presentPats, floor(intake), false);
+                    catch
+                        wtf =0
+                    end
                     patients.status(kept) = false;
                     intake = numel(kept);
                 else

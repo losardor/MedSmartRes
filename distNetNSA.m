@@ -69,7 +69,7 @@ for i = 1:121
     doctor_db.closeness(doctor_db.distnum == i) = closeness;
     
     averages = 100;
-    syst = System(peterID(doctor_db.distnum == i), MP(doctor_db.distnum == i), SP(doctor_db.distnum == i), full(A), 'Sigma', 3);
+    syst = System(peterID(doctor_db.distnum == i), MP(doctor_db.distnum == i), SP(doctor_db.distnum == i), full(A), 'Sigma', 1);
     for j = 1:numel(docs)
         [displ, lostl] = NNSelfAvoiding(syst, j, averages, 11, 0.15);
         doctor_db.mean_disp(doctor_db.peterID == docs(j)) = displ;
